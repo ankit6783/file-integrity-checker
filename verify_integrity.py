@@ -2,7 +2,6 @@ import os
 import json
 import hashlib
 
-# --- Hashing Function (from Step 2) ---
 BUFFER_SIZE = 65536
 
 def get_file_hash(filepath):
@@ -23,10 +22,10 @@ def get_file_hash(filepath):
         
     return sha256_hash.hexdigest()
 
-# --- Main Verification Logic ---
+
 def verify_integrity(target_directory, baseline_file):
     """Verifies file integrity against a saved baseline."""
-    # 1. Load the baseline
+  
     try:
         with open(baseline_file, 'r') as f:
             baseline_hashes = json.load(f)
@@ -39,14 +38,11 @@ def verify_integrity(target_directory, baseline_file):
 
     print("Starting integrity check...")
     
-    # 2. Initialize lists to store findings
     modified_files = []
     new_files = []
-    
-    # Create a copy of baseline files to find deleted ones
+   
     checked_files = set()
 
-    # 3. Walk the directory and check files
     for dirpath, _, filenames in os.walk(target_directory):
         for filename in filenames:
             filepath = os.path.join(dirpath, filename)
@@ -57,18 +53,16 @@ def verify_integrity(target_directory, baseline_file):
             current_hash = get_file_hash(filepath)
             
             if relative_path in baseline_hashes:
-                # File exists in baseline, check if hash matches
+               
                 if baseline_hashes[relative_path] != current_hash:
                     modified_files.append(relative_path)
             else:
-                # File is not in the baseline
+               
                 new_files.append(relative_path)
 
-    # 4. Find deleted files
-    # Any file in the baseline that was not checked must have been deleted
+    
     deleted_files = set(baseline_hashes.keys()) - checked_files
     
-    # 5. Report the results
     print("\n--- Integrity Check Report ---")
     if not modified_files and not new_files and not deleted_files:
         print("✅  All files are OK. No changes detected.")
@@ -97,4 +91,5 @@ if __name__ == "__main__":
     if not os.path.isdir(MONITORED_DIRECTORY):
         print(f"Error: Directory '{MONITORED_DIRECTORY}' not found.")
     else:
+
         verify_integrity(MONITORED_DIRECTORY, BASELINE_FILE)
